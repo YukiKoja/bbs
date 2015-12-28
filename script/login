@@ -36,7 +36,7 @@ post '/login' => sub {
     my $user = $self->param('user');
     my $pass = $self->param('password');
 
-    if ( $user eq 'test' && $pass eq 'test' ) {
+    if ( $user eq 'Yuki' && $pass eq 'password' ) {
         $self->session( 'sid' => $user . '@' . $self->tx->remote_address );
         $self->redirect_to($mount_path);
         return;
@@ -70,21 +70,147 @@ app->start;
 __DATA__
 
 @@ login.html.ep
-% layout 'default';
-% title 'Login';
-<form action="/login" method="post">
-<div>
-  <label>User:</label><input type="text" name="user">
-</div>
-<div>
-  <label>Password:</label><input type="password" name="password">
-</div>
-<input type="submit" value="Login">
-</form>
-
-@@ layouts/default.html.ep
-<!DOCTYPE html>
 <html>
-  <head><title><%= title %></title></head>
-  <body><%= content %></body>
+
+
+  <head>
+<title>Login</title>
+ <link rel="stylesheet" type="text/css" href="style.css" media="all" />
+
+</head>
+  <body>
+<div id="form">
+    <p class="form-title">Login</p>
+
+<form action="/login" method="post">
+<p>User</p>
+        <p class="user"><input type="text" name="user" /></p>
+
+<p>Password</p>
+        <p class="pass"><input type="password" name="password" /></p>
+<p class="submit"><input type="submit" value="Login" /></p>
+
+</form>
+</div>
+</body>
 </html>
+
+@@ style.css
+
+body,p,form,input{margin: 0}
+#form{
+  width: 400px;
+  margin: 30px auto;
+  padding: 20px;
+  border: 1px solid #555;
+  }
+
+form p{
+    font-size: 14px;
+    }
+
+.form-title{
+    text-align: center;
+}
+
+.user,.password{
+    margin-bottom: 20px;
+}
+
+input[type="text"],
+    input[type="password"] {
+      width: 300px;
+      padding: 4px;
+	font-size: 14px;
+}
+.submit{
+    text-align: right;
+}
+
+/* font */
+#form p{
+    color: #077685;
+    font-weight: bold;
+  
+#form .form-title{
+  font-family: Arial;
+  font-size: 30px;
+  color: #4eb4c2;
+  }
+
+/* skin */
+#form{
+  -webkit-border-radius: 6px;
+  -moz-border-radius: 6px;
+  border-radius: 6px;
+  -webkit-box-shadow: 0px 1px 10px #488a9e;
+  -moz-box-shadow: 0px 1px 10px #488a9e;
+  box-shadow: 0px 1px 10px #488a9e;
+  border: solid #4eb4c2 1px;
+  background: #fafafa;
+  }
+
+
+#form{
+background:#053352;
+  background-image: -webkit-linear-gradient(top, #053352, Courier New);
+  background-image: -moz-linear-gradient(top, #053352, Courier New);
+  background-image: -ms-linear-gradient(top, #053352, Courier New);
+  background-image: -o-linear-gradient(top, #053352, Courier New);
+  background-image: linear-gradient(to bottom, #053352, Courier New);
+				    -webkit-border-radius: 6;
+				    -moz-border-radius: 6;
+				    border-radius: 6px;
+				    font-family: Courier New;
+				    color: #ffffff;
+				    font-size: 20px;
+				  padding: 20px 20px 20px 20px;
+				    text-decoration: none;
+				       }
+
+.submit input {
+    background: #f78181;
+  background-image: -webkit-linear-gradient(top, #f78181, #f78181);
+  background-image: -moz-linear-gradient(top, #f78181, #f78181);
+  background-image: -ms-linear-gradient(top, #f78181, #f78181);
+  background-image: -o-linear-gradient(top, #f78181, #f78181);
+  background-image: linear-gradient(to bottom, #f78181, #f78181);
+				    -webkit-border-radius: 8;
+				    -moz-border-radius: 8;
+				    border-radius: 8px;
+  -webkit-box-shadow: 1px 1px 3px #666666;
+  -moz-box-shadow: 1px 1px 3px #666666;
+  box-shadow: 1px 1px 3px #666666;
+				    font-family: Courier New;
+				    color: #ffffff;
+				    font-size: 16px;
+				  padding: 10px 20px 10px 20px;
+				    text-decoration: none;
+				       }
+
+.submit input:hover {
+    background: #f5c7c7;
+  background-image: -webkit-linear-gradient(top, #f5c7c7, #f5c7c7);
+  background-image: -moz-linear-gradient(top, #f5c7c7, #f5c7c7);
+  background-image: -ms-linear-gradient(top, #f5c7c7, #f5c7c7);
+  background-image: -o-linear-gradient(top, #f5c7c7, #f5c7c7);
+  background-image: linear-gradient(to bottom, #f5c7c7, #f5c7c7);
+				    text-decoration: none;
+				       }
+
+#form{
+				       background: #053352;
+  background-image: -webkit-linear-gradient(top, #053352, Courier New);
+  background-image: -moz-linear-gradient(top, #053352, Courier New);
+  background-image: -ms-linear-gradient(top, #053352, Courier New);
+  background-image: -o-linear-gradient(top, #053352, Courier New);
+  background-image: linear-gradient(to bottom, #053352, Courier New);
+				    -webkit-border-radius: 6;
+				    -moz-border-radius: 6;
+				    border-radius: 6px;
+				    font-family: Courier New;
+				    color: #ffffff;
+				    font-size: 20px;
+				  padding: 20px 20px 20px 20px;
+				    text-decoration: none;
+				       }
