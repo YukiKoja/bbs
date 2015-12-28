@@ -1,0 +1,90 @@
+#!/usr/bin/env perl
+use Mojolicious::Lite;
+
+my $mount_path = '/secure';
+
+helper is_login => sub {
+    my $c = shift;
+    return $c->session('sid');
+};
+
+get '/' => sub {
+    my $self = shift;
+    if ( $self->is_login ) {
+        $self->redirect_to($mount_path);
+        return;
+    }
+    $self->redirect_to('/login');
+};
+
+get '/login' => sub {
+    my $self = shift;
+    if ( $self->is_login ) {
+        $self->redirect_to($mount_path);
+        return;
+    }
+};
+
+post '/login' => sub {
+    my $self = shift;
+
+    if ( $self->is_login ) {
+        $self->redirect_to($mount_path);
+        return;
+    }
+
+    my $user = $self->param('user');
+    my $pass = $self->param('password');
+
+    if ( $user eq 'test' && $pass eq 'test' ) {
+        $self->session( 'sid' => $user . '@' . $self->tx->remote_address );
+        $self->redirect_to($mount_path);
+        return;
+    }
+
+    $self->redirect_to('/login');
+};
+
+any '/logout' => sub {
+    my $self = shift;
+    $self->session( expires => 1 );
+    $self->redirect_to('/login');
+};
+
+# 認証ブリッジを作成
+my $auth_bridge = under sub {
+    my $self = shift;
+    if ( $self->is_login ) {
+        return 1;
+    }
+    $self->redirect_to('/login');
+    return;
+};
+
+# アプリケーションをマウントしてMojolicious::Routes::Routeオブジェクトを作り...
+my $app_route = plugin Mount => { $mount_path, => app->home->rel_dir('sample.pl') };
+# それを認証ブリッジの子として追加する
+$auth_bridge->add_child($app_route);
+
+app->start;
+__DATA__
+
+@@ login.html.ep
+% layout 'default';
+% title 'Login';
+<form action="/login" method="post">
+<div>
+  <label>User:</label><input type="text" name="user">
+</div>
+<div>
+  <label>Password:</label><input type="password" name="password">
+</div>
+<input type="submit" value="Login">
+</form>
+
+@@ layouts/default.html.ep
+<!DOCTYPE html>
+<html>
+  <head><title><%= title %></title></head>
+  <body><%= content %></body>
+</html>
