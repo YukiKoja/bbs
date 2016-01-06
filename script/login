@@ -36,7 +36,7 @@ post '/login' => sub {
     my $user = $self->param('user');
     my $pass = $self->param('password');
 
-    if ( $user eq 'Yuki' && $pass eq 'password' ) {
+    if ( $user eq 'yuki' && $pass eq 'password' ) {
         $self->session( 'sid' => $user . '@' . $self->tx->remote_address );
         $self->redirect_to($mount_path);
         return;
@@ -71,9 +71,10 @@ __DATA__
 
 @@ login.html.ep
 <html>
-
+<html lang="ja">
 
   <head>
+<meta charset="utf-8">
 <title>Login</title>
  <link rel="stylesheet" type="text/css" href="style.css" media="all" />
 
@@ -84,10 +85,10 @@ __DATA__
 
 <form action="/login" method="post">
 <p>User</p>
-        <p class="user"><input type="text" name="user" /></p>
+        <p class="user"><input type="user" name="user" /></p>
 
 <p>Password</p>
-        <p class="pass"><input type="password" name="password" /></p>
+        <p class="password"><input type="password" name="password" /></p>
 <p class="submit"><input type="submit" value="Login" /></p>
 
 </form>
@@ -96,6 +97,7 @@ __DATA__
 </html>
 
 @@ style.css
+@charset "shift_jis";
 
 body,p,form,input{margin: 0}
 #form{
@@ -117,7 +119,7 @@ form p{
     margin-bottom: 20px;
 }
 
-input[type="text"],
+input[type="user"],
     input[type="password"] {
       width: 300px;
       padding: 4px;

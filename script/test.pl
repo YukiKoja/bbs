@@ -1,24 +1,24 @@
-#!/usr/bin/perl
+#!perl
 
-use strict;
-use DBI;
 
-my $DB_NAME = "hoge";
-my $DB_HOST = "127.0.0.1";
-my $DB_USER = "koja";
-my $DB_PASSWD = "yuki";
+use URI::Find;
 
-my $dbh = DBI->connect("dbi:Pg:dbname=$DB_NAME;host=$DB_HOST", $DB_USER, $DB_PASSWD)
-    or die "$!\n Error: failed to connect to DB.\n";
-my $sth = $dbh->prepare("SELECT * FROM test ");
-$sth->execute();
 
-while (my $href = $sth->fetchrow_hashref) {
-    
-    print $href->{name},"\n";
-    print $href->{comment},"\n";
-    print $href->{create_timestamp},"\n";
+my $text = <<"END";
 
-}
+https://youtu.be/w2gIB5wKWsY
 
-$dbh->disconnect;
+END
+
+#$text = escapeHTML($text);
+
+    my $finder = URI::Find->new(sub{
+        my($uri, $orig_uri) = @_;
+        return qq|<%=iframe width="300" height="360" src="$uri" frameborder="0" allowfullscreen%>;<%=/\
+iframe%>|;});
+
+$finder->find(\$text);
+
+
+
+print $text;

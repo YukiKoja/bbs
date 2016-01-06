@@ -4,7 +4,8 @@ use strict;
 use warnings;
 use DBI;
 use Mojolicious::Lite;
-use utf8;
+use URI::Find;
+
 use Encode qw/encode decode/;
 
 
@@ -35,7 +36,13 @@ post '/create' => sub {
 
   # Check message length
   return $self->render(template => 'error', message => 'Message is too long')
-      if length $message > 100;
+      if length $message > 200;
+
+    my $finder = URI::Find->new(sub{
+	my($uri, $orig_uri) = @_;
+	return qq|<iframe width="300" height="360" src="$uri" frameborder="0" allowfullscreen>;</iframe>|;});
+
+    $finder->find(\$message);
 
     my $DB_NAME = "hoge";
     my $DB_HOST = "127.0.0.1";
@@ -101,36 +108,6 @@ $dbh->disconnect;
 get '/' => sub {
     my $self = shift;
 
-
-
-=comment
-  # Open data file(Create file if not exist)
-    my $mode = -f $data_file ? '<' : '+>';
-  open my $data_fh, $mode, $data_file
-      or die "Cannot open $data_file: $!";
-
-  # Read data
-    my $entry_infos = [];
-    while (my $line = <$data_fh>){
-        $line = decode('UTF-8', $line);
-        chomp $line;
-        my @record = split /\t/, $line;
-
-        my $entry_info = {};
-        $entry_info->{datetime} = $record[0];
-        $entry_info->{title}    = $record[1];
-        $entry_info->{message}  = $record[2];
-
-        push @$entry_infos, $entry_info;
-    }
-
-  # Close
-    close $data_fh;
-
-  # Reverse data order
-    @$entry_infos = reverse @$entry_infos;
-
-=cut
 
 my $DB_NAME = "hoge";
 my $DB_HOST = "127.0.0.1";
@@ -363,7 +340,7 @@ float:left;
         <div style="background-color:#016BFF;">Name: <%= $entry_info->{name} %>
  (<%= $entry_info->{datetime} %>)</div>
         <div style="background-color:#a4a4a4;">Message</div>
-    <div style="background-color:#a4a4a4;"><%= $entry_info->{message} %></div>
+    <div style="background-color:#a4a4a4;"><%== $entry_info->{message} %></div>
       </div>
     <% } %>
     </div>
