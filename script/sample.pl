@@ -21,6 +21,12 @@ post '/create' => sub {
   # Form data(This data is Already decoded)
     my $name   = $self->param('name');
     my $message = $self->param('message');
+    my $youtube = $self->param('youtube');
+
+
+
+   $youtube =~ s/http\:\/\/(?:www\.)?youtube\.com\/watch\?v\=([a-zA-Z0-9\_\-]{1,})/http\:\/\/www.youtube.com\/embed\/$1/;
+
 
   # Display error page if title is not exist.
   return $self->render(template => 'error', message  => 'Please input name')
@@ -37,12 +43,20 @@ post '/create' => sub {
   # Check message length
   return $self->render(template => 'error', message => 'Message is too long')
       if length $message > 200;
+  
+  
+
+
+=coment
+$message =~ s/http\:\/\/(?:www\.)?youtube\.com\/watch\?v\=([a-zA-Z0-9\_\-]{1,})/<iframe width\=\"500\" height\=\"300\" src\=\"http\:\/\/www.youtube.com\/embed\/$1\" frameborder\=\"0\" allowfullscreen><\/iframe>/;
+
 
     my $finder = URI::Find->new(sub{
 	my($uri, $orig_uri) = @_;
-	return qq|<iframe width="300" height="360" src="$uri" frameborder="0" allowfullscreen>;</iframe>|;});
+	return qq|iframe width="300" height="360" src="$uri" frameborder="0" allowfullscreen|;});
 
     $finder->find(\$message);
+=cut
 
     my $DB_NAME = "hoge";
     my $DB_HOST = "127.0.0.1";
@@ -53,12 +67,12 @@ my $dbh = DBI->connect("dbi:Pg:dbname=$DB_NAME;host=$DB_HOST", $DB_USER, $DB_PAS
     or die "$!\n Error: failed to connect to DB.\n";
 my $sth = $dbh->prepare("
 INSERT into test
-(name,comment,create_timestamp)
+(name,comment,create_timestamp,youtube)
 values
-(?,?,now())
+(?,?,now(),?)
 
 ");
-$sth->execute($name,$message);
+$sth->execute($name,$message,$youtube);
 
 
 
@@ -126,11 +140,13 @@ while (my $href = $sth->fetchrow_hashref) {
     print $href->{name},"\n";
     print $href->{comment},"\n";
     print $href->{create_timestamp},"\n";
+    print $href->{youtube},"\n";
 
         my $entry_info = {};
         $entry_info->{datetime} = $href->{create_timestamp};
         $entry_info->{name}    = $href->{name};
         $entry_info->{message}  = $href->{comment};
+        $entry_info->{youtube}  = $href->{youtube};
 
         push @$entry_infos, $entry_info;
 
@@ -321,36 +337,51 @@ float:left;
     <form method="post" action="<%= url_for('create') %>">
       <div>
         Title
-        <input type="text" name="name" >
+        <input type="text" name="name">
       </div>
       <div>Message</div>
       <div>
         <textarea name="message" cols="50" rows="10" ></textarea>
       </div>
       <div>
-        <input type="submit" value="Post" >
+        youtube
+        <input type="text" name="youtube" >
+      </div>
+
+      <div>
+        <input type="submit" value="Post">
       </div>
     </form>
 </div>
 
-    <div id="form">
-    <% for my $entry_info (@$entry_infos) { %>
-      <div>
-        <hr>
-        <div style="background-color:#016BFF;">Name: <%= $entry_info->{name} %>
- (<%= $entry_info->{datetime} %>)</div>
-        <div style="background-color:#a4a4a4;">Message</div>
-    <div style="background-color:#a4a4a4;"><%== $entry_info->{message} %></div>
-      </div>
+
+   <div id="form">
+
+     <% for my $entry_info (@$entry_infos) { %>
+
+     <div>
+     <div style="background-color:#016BFF;">Name: <%= $entry_info->{name} %>
+     (<%= $entry_info->{datetime} %>)</div>
+     <div style="background-color:#a4a4a4;">Message</div>
+     <div style="background-color:#a4a4a4;"><%= $entry_info->{message} %></div>
+ 
+     <div><iframe src="<%= $entry_info->{youtube} %>" frameborder="0" allowfullscreen></iframe></div>
+
+     <hr>
+     </div>
+
     <% } %>
-    </div>
-</div>
-</div>
+
+   </div>
 
 
-</div>
-</div>
-  </body>
+
+   </div>
+  </div>
+ </div>
+
+
+</body>
 </html>
 
 
