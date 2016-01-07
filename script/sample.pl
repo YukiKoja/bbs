@@ -11,10 +11,6 @@ use Encode qw/encode decode/;
 
 
 
-# Data file (app is Mojolicious object. home is Mojo::Home object)
-my $data_file = app->home->rel_file('bbs-data.txt');
-
-# Create entry
 post '/create' => sub {
     my $self = shift; # ($self is Mojolicious::Controller object)
 
@@ -22,10 +18,16 @@ post '/create' => sub {
     my $name   = $self->param('name');
     my $message = $self->param('message');
     my $youtube = $self->param('youtube');
+    my $tag   = $self->param('tag');
+    my $tag2  = $self->param('tag2');
 
 
-
-   $youtube =~ s/http\:\/\/(?:www\.)?youtube\.com\/watch\?v\=([a-zA-Z0-9\_\-]{1,})/http\:\/\/www.youtube.com\/embed\/$1/;
+    $youtube =~ s/http\:\/\/(?:www\.)?youtube\.com\/watch\?v\=([a-zA-Z0-9\_\-]{1,})/http\:\/\/www.youtube.com\/embed\/$1/;
+    $youtube =~ s/https\:\/\/(?:www\.)?youtube\.com\/watch\?v\=([a-zA-Z0-9\_\-]{1,})/http\:\/\/www.youtube.com\/embed\/$1/;
+    if ( $youtube =~ /youtube/ ) {
+        $ tag = '<iframe width="390" height="300" src="';
+        $ tag2 = '" frameborder="0" allowfullscreen></iframe>';
+    }
 
 
   # Display error page if title is not exist.
@@ -44,12 +46,9 @@ post '/create' => sub {
   return $self->render(template => 'error', message => 'Message is too long')
       if length $message > 200;
   
-  
-
 
 =coment
 $message =~ s/http\:\/\/(?:www\.)?youtube\.com\/watch\?v\=([a-zA-Z0-9\_\-]{1,})/<iframe width\=\"500\" height\=\"300\" src\=\"http\:\/\/www.youtube.com\/embed\/$1\" frameborder\=\"0\" allowfullscreen><\/iframe>/;
-
 
     my $finder = URI::Find->new(sub{
 	my($uri, $orig_uri) = @_;
@@ -67,57 +66,23 @@ my $dbh = DBI->connect("dbi:Pg:dbname=$DB_NAME;host=$DB_HOST", $DB_USER, $DB_PAS
     or die "$!\n Error: failed to connect to DB.\n";
 my $sth = $dbh->prepare("
 INSERT into test
-(name,comment,create_timestamp,youtube)
+(name,comment,create_timestamp,youtube,tag,tag2)
 values
-(?,?,now(),?)
+(?,?,now(),?,?,?)
 
 ");
-$sth->execute($name,$message,$youtube);
-
-
+$sth->execute($name,$message,$youtube,$tag,$tag2);
 
 
 $dbh->disconnect;
 
-  # Data and time
-    my ($sec, $min, $hour, $day, $month, $year) = localtime;
-    $month = $month + 1;
-    $year = $year + 1900;
-
-  # Format date (yyyy/mm/dd hh:MM:ss)
-  my $datetime = sprintf(
-    "%04s/%02s/%02s %02s:%02s:%02s",
-    $year,
-    $month,
-    $day,
-    $hour,
-    $min,
-    $sec
-      );
-
-  # Delete line breakes
-    $message =~ s/\x0D\x0A|\x0D|\x0A//g;
-
-  # Writing data
-    my $record = join("\t", $datetime, $name, $message) . "\n";
-
-  # File open to write
-  open my $data_fh, ">>", $data_file
-      or die "Cannot open $data_file: $!";
-
-  # Encode
-    $record = encode('UTF-8', $record);
-
-  # Write
-    print $data_fh $record;
-
-  # Close
-    close $data_fh;
 
   # Redirect
     $self->redirect_to('index');
 
 } => 'create';
+
+
 
 get '/' => sub {
     my $self = shift;
@@ -141,12 +106,16 @@ while (my $href = $sth->fetchrow_hashref) {
     print $href->{comment},"\n";
     print $href->{create_timestamp},"\n";
     print $href->{youtube},"\n";
+    print $href->{tag},"\n";
+    print $href->{tag2},"\n";
 
         my $entry_info = {};
         $entry_info->{datetime} = $href->{create_timestamp};
         $entry_info->{name}    = $href->{name};
         $entry_info->{message}  = $href->{comment};
         $entry_info->{youtube}  = $href->{youtube};
+        $entry_info->{tag}  = $href->{tag};
+        $entry_info->{tag2}  = $href->{tag2};
 
         push @$entry_infos, $entry_info;
 
@@ -157,13 +126,13 @@ while (my $href = $sth->fetchrow_hashref) {
 $dbh->disconnect;
 
 
-
   # Render index page
     $self->render(entry_infos => $entry_infos);
 
 } => 'index';
 
 app->start;
+
 
 __DATA__
 
@@ -225,10 +194,6 @@ float:right;
    }
 
 
-  div#chat {
-  width:150px;
-  float:right;
-}
 
 
 div#pagebody{
@@ -336,7 +301,7 @@ float:left;
 <div id ="bbs">
     <form method="post" action="<%= url_for('create') %>">
       <div>
-        Title
+        Name
         <input type="text" name="name">
       </div>
       <div>Message</div>
@@ -345,7 +310,7 @@ float:left;
       </div>
       <div>
         youtube
-        <input type="text" name="youtube" >
+        <input type="text" name="youtube" size="40" placeholder="http://www.youtube.com/watch?v=8Q2uzIv4nhg" >
       </div>
 
       <div>
@@ -365,7 +330,11 @@ float:left;
      <div style="background-color:#a4a4a4;">Message</div>
      <div style="background-color:#a4a4a4;"><%= $entry_info->{message} %></div>
  
-     <div><iframe src="<%= $entry_info->{youtube} %>" frameborder="0" allowfullscreen></iframe></div>
+     <div>
+<%== $entry_info->{tag} %>
+<%= $entry_info->{youtube} %>
+<%== $entry_info->{tag2} %>
+     </div>
 
      <hr>
      </div>
