@@ -16,10 +16,19 @@ post '/create' => sub {
     my $title   = $self->param('title');
     my $message = $self->param('message');
     my $youtube = $self->param('youtube');
+    my $tag   = $self->param('tag');
+    my $tag2  = $self->param('tag2');
+
+
+
+$youtube =~ s/http\:\/\/(?:www\.)?youtube\.com\/watch\?v\=([a-zA-Z0-9\_\-]{1,})/http\:\/\/www.youtube.com\/embed\/$1/;
+$youtube =~ s/https\:\/\/(?:www\.)?youtube\.com\/watch\?v\=([a-zA-Z0-9\_\-]{1,})/http\:\/\/www.youtube.com\/embed\/$1/;
+    if ( $youtube =~ /youtube/ ) {
+	$ tag = '<iframe width="300" height="300" src="';
+        $ tag2 = '" frameborder="0" allowfullscreen></iframe>';
+    }
 
    #$youtube =~ s/http\:\/\/(?:www\.)?youtube\.com\/watch\?v\=([a-zA-Z0-9\_\-]{1,})/http\:\/\/www.youtube.com\/embed\/$1/;
-
-$message =~ s/http\:\/\/(?:www\.)?youtube\.com\/watch\?v\=([a-zA-Z0-9\_\-]{1,})/<br><iframe width\=\"500\" height\=\"300\" src\=\"http\:\/\/www.youtube.com\/embed\/$1\" frameborder\=\"0\" allowfullscreen><\/iframe><br>/;
   
 =come
     my $finder = URI::Find->new(sub{
@@ -28,6 +37,8 @@ $message =~ s/http\:\/\/(?:www\.)?youtube\.com\/watch\?v\=([a-zA-Z0-9\_\-]{1,})/
 
     $finder->find(\$message);
 =cut
+
+
 
 
   # Display error page if title is not exist.
@@ -78,7 +89,7 @@ $message =~ s/http\:\/\/(?:www\.)?youtube\.com\/watch\?v\=([a-zA-Z0-9\_\-]{1,})/
     $message =~ s/\x0D\x0A|\x0D|\x0A//g;
   
   # Writing data
-    my $record = join("\t", $datetime, $title, $message, $youtube) . "\n";
+    my $record = join("\t", $datetime, $title, $message, $youtube, $tag, $tag2) . "\n";
   
   # File open to write
   open my $data_fh, ">>", $data_file
@@ -98,9 +109,15 @@ $message =~ s/http\:\/\/(?:www\.)?youtube\.com\/watch\?v\=([a-zA-Z0-9\_\-]{1,})/
   
 } => 'create';
 
+
 get '/' => sub {
     my $self = shift;
   
+
+
+
+
+
   # Open data file(Create file if not exist)
     my $mode = -f $data_file ? '<' : '+>';
   open my $data_fh, $mode, $data_file
@@ -119,7 +136,9 @@ get '/' => sub {
 	$entry_info->{title}    = $record[1];
 	$entry_info->{message}  = $record[2];
 	$entry_info->{youtube}  = $record[3];
-    
+	$entry_info->{tag}  = $record[4];        
+	$entry_info->{tag2}  = $record[5];        
+
 	push @$entry_infos, $entry_info;
     }
   
@@ -139,13 +158,17 @@ app->start;
 __DATA__
 
 @@ index.html.ep
+
 <html>
   <head>
     <meta http-equiv="Content-Type" content="text/html;charset=UTF-8" >
     <title>Short Message BBS</title>
-  </head>
+  
+
+</head>
   <body>
     <h1>Short Message BBS</h1>
+
     <form method="post" action="<%= url_for('create') %>">
       <div>
         Title
@@ -173,8 +196,9 @@ __DATA__
         <div><%== $entry_info->{message} %>
         </div>
         <div>
-
-<iframe  src="<%= $entry_info->{youtube} %>" frameborder="0" allowfullscreen></iframe>
+            <%== $entry_info->{tag} %>
+              <%= $entry_info->{youtube} %>
+            <%== $entry_info->{tag2} %>
         </div>
          
       <div>

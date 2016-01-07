@@ -5,20 +5,58 @@ use warnings;
 use DBI;
 use Mojolicious::Lite;
 use URI::Find;
+
 use Encode qw/encode decode/;
-use File::Basename;
 
-my $file = "$0";
-my $a = basename($file, ".pl");
+post '/new' => sub {
+    my $self = shift; # ($self is Mojolicious::Controller object)
+    my $file = "$0";
+    my $title   = $self->param('title');
+    my $a = $title;
+
+
+    my $DB_NAME = "hoge";
+    my $DB_HOST = "127.0.0.1";
+    my $DB_USER = "koja";
+    my $DB_PASSWD = "yuki";
+
+my $dbh = DBI->connect("dbi:Pg:dbname=$DB_NAME;host=$DB_HOST", $DB_USER, $DB_PASSWD)
+    or die "$!\n Error: failed to connect to DB.\n";
+my $sth = $dbh->prepare("
+
+CREATE TABLE $a
+    (name text,
+     comment text,
+     create_timestamp timestamp without time zone,
+     youtube text,
+     tag text,
+     tag2 text)
+
+");
+$sth->execute;
+
+
+$dbh->disconnect;
+
+
+  # Redirect
+    $self->redirect_to('index');
 
 
 
+} => 'new';
+
+=come
 
 post '/create' => sub {
     my $self = shift; # ($self is Mojolicious::Controller object)
 
   # Form data(This data is Already decoded)
-    my $name   = $self->param('name');
+   # my $title   = $self->param('title');
+
+
+
+=come
     my $message = $self->param('message');
     my $youtube = $self->param('youtube');
     my $tag   = $self->param('tag');
@@ -58,8 +96,8 @@ $message =~ s/http\:\/\/(?:www\.)?youtube\.com\/watch\?v\=([a-zA-Z0-9\_\-]{1,})/
 	return qq|iframe width="300" height="360" src="$uri" frameborder="0" allowfullscreen|;});
 
     $finder->find(\$message);
-=cut
 
+ 
     my $DB_NAME = "hoge";
     my $DB_HOST = "127.0.0.1";
     my $DB_USER = "koja";
@@ -68,13 +106,17 @@ $message =~ s/http\:\/\/(?:www\.)?youtube\.com\/watch\?v\=([a-zA-Z0-9\_\-]{1,})/
 my $dbh = DBI->connect("dbi:Pg:dbname=$DB_NAME;host=$DB_HOST", $DB_USER, $DB_PASSWD)
     or die "$!\n Error: failed to connect to DB.\n";
 my $sth = $dbh->prepare("
-INSERT into test
-(name,comment,create_timestamp,youtube,tag,tag2)
-values
-(?,?,now(),?,?,?)
+
+CREATE TABLE test
+    (name text,
+     comment text,
+     create_timestamp timestamp without time zone,
+     youtube text,
+     tag text,
+     tag2 text)
 
 ");
-$sth->execute($name,$message,$youtube,$tag,$tag2);
+$sth->execute;
 
 
 $dbh->disconnect;
@@ -84,7 +126,7 @@ $dbh->disconnect;
     $self->redirect_to('index');
 
 } => 'create';
-
+=cut
 
 
 get '/' => sub {
@@ -98,7 +140,7 @@ my $DB_PASSWD = "yuki";
 
 my $dbh = DBI->connect("dbi:Pg:dbname=$DB_NAME;host=$DB_HOST", $DB_USER, $DB_PASSWD)
     or die "$!\n Error: failed to connect to DB.\n";
-my $sth = $dbh->prepare("SELECT * FROM test ");
+my $sth = $dbh->prepare("select * from $a");
 $sth->execute();
 
     my $entry_infos = [];
@@ -106,19 +148,9 @@ $sth->execute();
 while (my $href = $sth->fetchrow_hashref) {
 
     print $href->{name},"\n";
-    print $href->{comment},"\n";
-    print $href->{create_timestamp},"\n";
-    print $href->{youtube},"\n";
-    print $href->{tag},"\n";
-    print $href->{tag2},"\n";
 
         my $entry_info = {};
-        $entry_info->{datetime} = $href->{create_timestamp};
         $entry_info->{name}    = $href->{name};
-        $entry_info->{message}  = $href->{comment};
-        $entry_info->{youtube}  = $href->{youtube};
-        $entry_info->{tag}  = $href->{tag};
-        $entry_info->{tag2}  = $href->{tag2};
 
         push @$entry_infos, $entry_info;
 
@@ -301,27 +333,11 @@ float:left;
 <div id ="main">
 
 <div id ="bbs">
- <div>
-        新規
-        <input type="text" name="name">
-        <input type="submit" value="作成">
-      </div>
-
-    <hr>
-    <form method="post" action="<%= url_for('create') %>">
+    <form method="post" action="<%= url_for('new') %>">
       <div>
         Name
-        <input type="text" name="name">
+        <input type="text" name="title">
       </div>
-      <div>Message</div>
-      <div>
-        <textarea name="message" cols="50" rows="10" ></textarea>
-      </div>
-      <div>
-        youtube
-        <input type="text" name="youtube" size="40" placeholder="http://www.youtube.com/watch?v=8Q2uzIv4nhg" >
-      </div>
-
       <div>
         <input type="submit" value="Post">
       </div>

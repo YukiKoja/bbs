@@ -1,24 +1,104 @@
 #!/usr/bin/perl
 
 use strict;
-use DBI;
+use warnings;
 
-my $DB_NAME = "hoge";
-my $DB_HOST = "127.0.0.1";
-my $DB_USER = "koja";
-my $DB_PASSWD = "yuki";
+use Mojolicious::Lite;
+my $clients = {};
 
-my $dbh = DBI->connect("dbi:Pg:dbname=$DB_NAME;host=$DB_HOST", $DB_USER, $DB_PASSWD)
-    or die "$!\n Error: failed to connect to DB.\n";
-my $sth = $dbh->prepare("
-INSERT into test
-(name,comment,create_timestamp)
-values
-(?,?,now())
+websocket '/' => sub {
+    my $self = shift;
 
-");
-$sth->execute('1','koja');
+  # Client id
+    my $cid = "$self";
+  
+  # Resist controller
+    $clients->{$cid}{controller} = $self;
+  
+  # Receive message
+    $self->on('message' => sub {
+	my ($self, $message) = @_;
+    
+    # Send message to all clients
+	foreach my $cid (keys %$clients) {
+	    $clients->{$cid}{controller}->send($message);
+	}
+	      });
+  
+  # Finish
+    $self->on('finish' => sub {
+      
+    # Remove client
+	delete $clients->{$cid};
+	      });
+};
 
+get '/' => 'index';
 
+app->start;
 
-$dbh->disconnect;
+__DATA__
+
+@@ index.html.ep
+% my $url = $self->req->url->to_abs->scheme($self->req->is_secure ? 'wss' : 'ws')->path( '/' );
+<!doctype html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>Mojo Websocket Demo</title>
+
+  <script type="text/javascript">
+    // only load the flash fallback when needed
+    if ( !( 'WebSocket' in window ) ) {
+      document.write([
+        '<scr'+'ipt type="text/javascript" src="web-socket-js/swfobject.js"></scr'+'ipt>',
+        '<scr'+'ipt type="text/javascript" src="web-socket-js/FABridge.js"></scr'+'ipt>',
+        '<scr'+'ipt type="text/javascript" src="web-socket-js/web_socket.js"></scr'+'ipt>'
+      ].join(''));
+    }
+  </script>
+  <script type="text/javascript">
+    if ( WebSocket.__initialize ) {
+      // Set URL of your WebSocketMain.swf here:
+      WebSocket.__swfLocation = 'web-socket-js/WebSocketMain.swf';
+    }
+
+    // example copied from web-socket-js/sample.html
+    var ws, input, clock;
+
+    function init() {
+      
+      // Connect to Web Socket.
+      ws = new WebSocket('<%= $url %>');
+      
+      // Receive message
+      ws.onmessage = function(e) {
+        // Write message
+        var message = document.createElement('div');
+        message.appendChild(document.createTextNode(e.data));
+        var display = document.getElementById( 'display' );
+        display.appendChild(message);
+      };
+    }
+
+    function sendChatMessage() {
+      var input = document.getElementById('message-box');
+      var message = input.value;
+      
+      // Send message
+      ws.send(message);
+      input.value = "";
+    }
+    
+    window.onload = init;
+  </script>
+</head>
+<body>
+<div id="display" style="width:500px; height:200px; border:1px solid black"></div>
+
+<form onsubmit="sendChatMessage(); return false;">
+  <input size="60" type="text" id="message-box">
+  <input type="submit" onclick="sendChatMessage(); return false;" value=Send >
+</form>
+</body>
+</html>
