@@ -8,8 +8,34 @@ use URI::Find;
 use Encode qw/encode decode/;
 use File::Basename;
 
-my $file = "$0";
-my $a = basename($file, ".pl");
+#my $file = "$0";
+#my $a = basename($file, ".pl");
+
+
+post '/thread' =>sub {
+    my $self = shift; # ($self is Mojolicious::Controller object)
+    my $title   = $self->param('title');
+    my $DB_NAME = "hoge";
+    my $DB_HOST = "127.0.0.1";
+    my $DB_USER = "koja";
+    my $DB_PASSWD = "yuki";
+    my $dbh = DBI->connect("dbi:Pg:dbname=$DB_NAME;host=$DB_HOST", $DB_USER, $DB_PASSWD)
+    or die "$!\n Error: failed to connect to DB.\n";
+
+    my  $sth = $dbh->prepare("
+    INSERT into thread (name)
+    values (?)
+    ");
+$sth->execute($title);
+
+$dbh->disconnect;
+  # Redirect
+    $self->redirect_to('index');
+
+} => 'thread';
+
+
+
 
 
 
@@ -23,7 +49,7 @@ post '/create' => sub {
     my $youtube = $self->param('youtube');
     my $tag   = $self->param('tag');
     my $tag2  = $self->param('tag2');
-
+    my $thread_id = $self->param('thread_id');
 
     $youtube =~ s/http\:\/\/(?:www\.)?youtube\.com\/watch\?v\=([a-zA-Z0-9\_\-]{1,})/http\:\/\/www.youtube.com\/embed\/$1/;
     $youtube =~ s/https\:\/\/(?:www\.)?youtube\.com\/watch\?v\=([a-zA-Z0-9\_\-]{1,})/http\:\/\/www.youtube.com\/embed\/$1/;
@@ -31,7 +57,6 @@ post '/create' => sub {
         $ tag = '<iframe width="390" height="300" src="';
         $ tag2 = '" frameborder="0" allowfullscreen></iframe>';
     }
-
 
   # Display error page if title is not exist.
   return $self->render(template => 'error', message  => 'Please input name')
@@ -49,17 +74,6 @@ post '/create' => sub {
   return $self->render(template => 'error', message => 'Message is too long')
       if length $message > 200;
   
-
-=coment
-$message =~ s/http\:\/\/(?:www\.)?youtube\.com\/watch\?v\=([a-zA-Z0-9\_\-]{1,})/<iframe width\=\"500\" height\=\"300\" src\=\"http\:\/\/www.youtube.com\/embed\/$1\" frameborder\=\"0\" allowfullscreen><\/iframe>/;
-
-    my $finder = URI::Find->new(sub{
-	my($uri, $orig_uri) = @_;
-	return qq|iframe width="300" height="360" src="$uri" frameborder="0" allowfullscreen|;});
-
-    $finder->find(\$message);
-=cut
-
     my $DB_NAME = "hoge";
     my $DB_HOST = "127.0.0.1";
     my $DB_USER = "koja";
@@ -69,28 +83,34 @@ my $dbh = DBI->connect("dbi:Pg:dbname=$DB_NAME;host=$DB_HOST", $DB_USER, $DB_PAS
     or die "$!\n Error: failed to connect to DB.\n";
 my $sth = $dbh->prepare("
 INSERT into test
-(name,comment,create_timestamp,youtube,tag,tag2)
+(name,comment,create_timestamp,youtube,tag,tag2,thread_id)
 values
-(?,?,now(),?,?,?)
+(?,?,now(),?,?,?,?)
 
 ");
-$sth->execute($name,$message,$youtube,$tag,$tag2);
+$sth->execute($name,$message,$youtube,$tag,$tag2,$thread_id);
 
 
 $dbh->disconnect;
 
-
   # Redirect
-    $self->redirect_to('index');
+    $self->redirect_to('/?thread_id='.$thread_id);
 
 } => 'create';
 
 
 
+
+
+
+
+
 get '/' => sub {
-    my $self = shift;
 
+my $self = shift;
 
+my $thread = $self->param('thread_id');
+say $thread;
 my $DB_NAME = "hoge";
 my $DB_HOST = "127.0.0.1";
 my $DB_USER = "koja";
@@ -98,7 +118,7 @@ my $DB_PASSWD = "yuki";
 
 my $dbh = DBI->connect("dbi:Pg:dbname=$DB_NAME;host=$DB_HOST", $DB_USER, $DB_PASSWD)
     or die "$!\n Error: failed to connect to DB.\n";
-my $sth = $dbh->prepare("SELECT * FROM test ");
+my $sth = $dbh->prepare("SELECT * FROM test where thread_id = $thread");
 $sth->execute();
 
     my $entry_infos = [];
@@ -111,7 +131,7 @@ while (my $href = $sth->fetchrow_hashref) {
     print $href->{youtube},"\n";
     print $href->{tag},"\n";
     print $href->{tag2},"\n";
-
+    
         my $entry_info = {};
         $entry_info->{datetime} = $href->{create_timestamp};
         $entry_info->{name}    = $href->{name};
@@ -124,14 +144,39 @@ while (my $href = $sth->fetchrow_hashref) {
 
 }
 
+$sth = $dbh->prepare("
+    SELECT name, thread_id from thread
+   ");
+$sth->execute;
+
+
+my $thread_infos = [];
+
+while (my $href = $sth->fetchrow_hashref) {
+
+    print $href->{name},"\n";
+   print $href->{thread_id},"\n";
+
+        my $thread_info = {};
+        $thread_info->{name}    = $href->{name};
+        $thread_info->{thread_id}    = $href->{thread_id};
+        push @$thread_infos, $thread_info;
+
+}
 
 $dbh->disconnect;
 
-
   # Render index page
-    $self->render(entry_infos => $entry_infos);
+    $self->render(entry_infos => $entry_infos, thread_infos => $thread_infos ,current_thread_id => $thread);
 
-} => 'index';
+} 
+
+=> 'index';
+
+
+
+
+
 
 app->start;
 
@@ -142,7 +187,7 @@ __DATA__
 <html>
   <head>
     <meta http-equiv="Content-Type" content="text/html;charset=UTF-8" >
-    <link rel="stylesheet" type="text/css" href="/mainstyle.css" />
+
     <title>掲示板</title>
 
   <style type="text/css">
@@ -215,7 +260,6 @@ float:left;/*サブメニューのカラムを左寄せにする*/
 /*サブメニューのヘッダ部分（余白調整・背景画像・背景色・文字サイズなど）*/
 div#submenu_header {
 height:26px; padding:4px 0px 0px 0px;
-background-image:url("images/bg_submenu_header.gif");
 background-repeat:no-repeat; background-position:top;
 background-color:#cccccc;
 font-size:90%; font-weight:bold; text-align:center;
@@ -224,7 +268,6 @@ font-size:90%; font-weight:bold; text-align:center;
 /*サブメニューのボディ部分（余白調整・背景画像・背景色）*/
 ul#submenu_body {
 padding-bottom:6px;
-background-image:url("images/bg_submenu_footer.gif");
 background-repeat:no-repeat; background-position:bottom;
 background-color:#cccccc;
 }
@@ -272,26 +315,16 @@ float:left;
 
 
 <div id="submenu">
-    <div id="submenu_header">リンク</div>
+
+    <div id="submenu_header">スレッド</div>
     <ul id="submenu_body">
-    <li><a href="xxx.html">リンク</a></li>
-    <li><a href="xxx.html">リンク</a></li>
-    <li><a href="xxx.html">リンク</a></li>
-    <li><a href="xxx.html">リンク</a></li>
-    <li><a href="xxx.html">リンク</a></li>
-    <li><a href="xxx.html">リンク</a></li>
-    <li><a href="xxx.html">リンク</a></li>
-    <li><a href="xxx.html">リンク</a></li>
-    <li><a href="xxx.html">リスト</a></li>
-    <li><a href="xxx.html">リンク</a></li>
-    <li><a href="xxx.html">リンク</a></li>
-    <li><a href="xxx.html">リンク</a></li>
-    <li><a href="xxx.html">リンク</a></li>
-    <li><a href="xxx.html">リンク</a></li>
-    <li><a href="xxx.html">リンク</a></li>
-    <li><a href="xxx.html">リンク</a></li>
+    <% for my $thread_info (@$thread_infos) { %>
+    <li><a href="?thread_id=<%= $thread_info->{thread_id} %>"><%= $thread_info->{name} %></a></li>
+    <% } %>
     </ul>
 </div>
+
+
 
 <div id ="back">
 
@@ -301,14 +334,18 @@ float:left;
 <div id ="main">
 
 <div id ="bbs">
- <div>
+    <form method="post" action="<%= url_for('thread') %>">
+      <div>
         新規
-        <input type="text" name="name">
+        <input type="text" name="title">
         <input type="submit" value="作成">
       </div>
+    </form>
+
 
     <hr>
     <form method="post" action="<%= url_for('create') %>">
+    <input type="hidden" name="thread_id" value="<%= $current_thread_id %>">
       <div>
         Name
         <input type="text" name="name">
@@ -340,9 +377,9 @@ float:left;
      <div style="background-color:#a4a4a4;"><%= $entry_info->{message} %></div>
  
      <div>
-<%== $entry_info->{tag} %>
-<%= $entry_info->{youtube} %>
-<%== $entry_info->{tag2} %>
+<%== $entry_info->{tag} || '' %>
+<%= $entry_info->{youtube} || '' %>
+<%== $entry_info->{tag2} || '' %>
      </div>
 
      <hr>
@@ -374,5 +411,3 @@ float:left;
 
   </body>
 </html>
-
-
