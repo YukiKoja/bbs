@@ -118,11 +118,21 @@ my $DB_PASSWD = "yuki";
 
 my $dbh = DBI->connect("dbi:Pg:dbname=$DB_NAME;host=$DB_HOST", $DB_USER, $DB_PASSWD)
     or die "$!\n Error: failed to connect to DB.\n";
-my $sth = $dbh->prepare("SELECT * FROM test where thread_id = $thread");
-$sth->execute();
+my $sth = $dbh->prepare("
+SELECT test.name,
+test.comment,
+test.create_timestamp,
+test.youtube,
+test.tag,
+test.tag2,
+thread.name as thread_name
+FROM test inner join thread on (test.thread_id = thread.thread_id)
+where thread_id = ?
+");
+$sth->execute($thread);
 
     my $entry_infos = [];
-
+my $current_thread_name = '';
 while (my $href = $sth->fetchrow_hashref) {
 
     print $href->{name},"\n";
@@ -131,7 +141,8 @@ while (my $href = $sth->fetchrow_hashref) {
     print $href->{youtube},"\n";
     print $href->{tag},"\n";
     print $href->{tag2},"\n";
-    
+    print $href->{thread_name},"\n";
+    $current_thread_name = $href->{thread_name};    
         my $entry_info = {};
         $entry_info->{datetime} = $href->{create_timestamp};
         $entry_info->{name}    = $href->{name};
@@ -139,6 +150,7 @@ while (my $href = $sth->fetchrow_hashref) {
         $entry_info->{youtube}  = $href->{youtube};
         $entry_info->{tag}  = $href->{tag};
         $entry_info->{tag2}  = $href->{tag2};
+        $entry_info->{thread_name} = $href->{thread_name};
 
         push @$entry_infos, $entry_info;
 
@@ -167,7 +179,7 @@ while (my $href = $sth->fetchrow_hashref) {
 $dbh->disconnect;
 
   # Render index page
-    $self->render(entry_infos => $entry_infos, thread_infos => $thread_infos ,current_thread_id => $thread);
+    $self->render(entry_infos => $entry_infos, thread_infos => $thread_infos ,current_thread_id => $thread, current_thread_name => $current_thread_name);
 
 } 
 
@@ -344,6 +356,7 @@ float:left;
 
 
     <hr>
+    <h2><%= $current_thread_name %></h2>
     <form method="post" action="<%= url_for('create') %>">
     <input type="hidden" name="thread_id" value="<%= $current_thread_id %>">
       <div>
