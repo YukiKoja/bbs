@@ -127,7 +127,7 @@ test.tag,
 test.tag2,
 thread.name as thread_name
 FROM test inner join thread on (test.thread_id = thread.thread_id)
-where thread_id = ?
+where thread.thread_id = ?
 ");
 $sth->execute($thread);
 
