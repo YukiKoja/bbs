@@ -1,0 +1,96 @@
+
+    body{
+    text-align:center;
+    background:#f0f0f0;
+    }
+
+    h1 {
+    color:blue;
+    font-size:300%;
+   }
+
+h1:before {
+    content: url(https://cdn3.iconfinder.com/data/icons/blue-ulitto/128/Developer_files_Perl_Sc\
+ript-128.png);
+    margin: 10px;
+    position: relative;
+    top: 8px;
+}
+
+h1:after {
+    content: url(https://cdn3.iconfinder.com/data/icons/blue-ulitto/128/Developer_files_Perl_Sc\
+ript-128.png);
+    margin: 10px;
+    position: relative;
+    top: 8px;
+}
+
+   div#back {
+ width:560px; margin:10px 20px 10px 0px;
+float:right;
+
+}
+
+  div#bbs {
+   padding-top: 30px;
+   width: 390px;
+   margin-left: auto;
+   margin-right: auto;
+   text-align:left;
+
+}
+
+
+   div#form {
+   width: 390px;
+   height : 390px;
+   }
+
+
+
+
+div#pagebody{
+ width:796px; margin:0 auto;
+text-align:left;
+background-color:#727272;
+}
+
+
+div#submenu {
+width:160px;/*幅の指定*/
+margin:10px 10px 10px 25px;/*位置調整（IE6のバグに注意）*/
+display:inline;/*IE6のマージン算出のバグ対策*/
+float:left;/*サブメニューのカラムを左寄せにする*/
+}
+
+/*サブメニューのヘッダ部分（余白調整・背景画像・背景色・文字サイズなど）*/
+div#submenu_header {
+height:26px; padding:4px 0px 0px 0px;
+background-repeat:no-repeat; background-position:top;
+background-color:#cccccc;
+font-size:90%; font-weight:bold; text-align:center;
+}
+
+/*サブメニューのボディ部分（余白調整・背景画像・背景色）*/
+ul#submenu_body {
+padding-bottom:6px;
+background-repeat:no-repeat; background-position:bottom;
+background-color:#cccccc;
+}
+ul#submenu_body li {
+font-size:90%;/*文字サイズを90%にする*/
+list-style-type:none;/*リストマーカー無しにする*/
+display:inline;/*リスト項目をインライン表示にする*/
+}
+ul#submenu_body li a {
+display:block;/*リンクをブロック表示にする*/
+margin:0px 4px 0px 4px;/*サブメニュー項目のマージン*/
+padding:2px 0px 2px 20px;/*サブメニュー項目のパディング*/
+background-color:#eeeeee;/*サブメニュー項目の背景色*/
+text-decoration:none;/*リンクの下線を無くす*/
+}
+
+div#main {
+width:390px; margin-right:5px; padding-top:10px;
+float:left;
+}

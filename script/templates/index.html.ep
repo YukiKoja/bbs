@@ -1,0 +1,112 @@
+
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8" >
+
+    <title>掲示板</title>
+    %= stylesheet '/css/common.css';
+  </head>
+
+
+<body>
+
+<div id ="pagebody">
+
+<header>
+<div align="center">
+<h1>掲 示 板</h1>
+<hr width="90%">
+[<a href="">リンク</a>]
+[<a href="">リンク</a>]
+[<a href="">リンク</a>]
+[<a href="">リンク</a>]
+<hr width="90%">
+</header>
+
+
+
+<div id="submenu">
+
+    <div id="submenu_header">スレッド</div>
+    <ul id="submenu_body">
+    <% for my $thread_info (@$thread_infos) { %>
+    <li><a href="?thread_id=<%= $thread_info->{thread_id} %>"><%= $thread_info->{name} %></a></li>
+    <% } %>
+    </ul>
+</div>
+
+
+
+<div id ="back">
+
+
+
+
+<div id ="main">
+
+<div id ="bbs">
+    <form method="post" action="<%= url_for('thread') %>">
+      <div>
+        新規
+        <input type="text" name="title">
+        <input type="submit" value="作成">
+      </div>
+    </form>
+
+
+    <hr>
+    <h2><%= $current_thread_name %></h2>
+    <form method="post" action="<%= url_for('create') %>">
+    <input type="hidden" name="thread_id" value="<%= $current_thread_id %>">
+      <div>
+        Name
+        <input type="text" name="name">
+      </div>
+      <div>Message</div>
+      <div>
+        <textarea name="message" cols="50" rows="10" ></textarea>
+      </div>
+      <div>
+        youtube
+        <input type="text" name="youtube" size="40" placeholder="http://www.youtube.com/watch?v=8Q2uzIv4nhg" >
+      </div>
+
+      <div>
+        <input type="submit" value="Post">
+      </div>
+    </form>
+</div>
+
+
+   <div id="form">
+
+     <% for my $entry_info (@$entry_infos) { %>
+
+     <div>
+     <div style="background-color:#016BFF;">Name: <%= $entry_info->{name} %>
+     (<%= $entry_info->{datetime} %>)</div>
+     <div style="background-color:#a4a4a4;">Message</div>
+     <div style="background-color:#a4a4a4;"><%= $entry_info->{message} %></div>
+
+     <div>
+<%== $entry_info->{tag} || '' %>
+<%= $entry_info->{youtube} || '' %>
+<%== $entry_info->{tag2} || '' %>
+     </div>
+
+     <hr>
+     </div>
+
+    <% } %>
+
+   </div>
+
+
+
+   </div>
+  </div>
+ </div>
+
+
+</body>
+</html>
