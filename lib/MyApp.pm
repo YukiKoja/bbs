@@ -3,11 +3,21 @@ use Mojo::Base 'Mojolicious';
 
 # This method will run once at server start
 sub startup {
-  my $self = shift;
+    my $self = shift;
+
+  # Documentation browser under "/perldoc"
+    $self->plugin('PODRenderer');
 
   # Router
-  my $r = $self->routes;
-  $r->any('/')->detour('root#',name=>'Root');
+    my $r = $self->routes;
+
+  # Normal route to controller
+
+
+    $r->get('/')->to('bbs#index');
+    $r->post('/create')->to('bbs#create');
+    $r->post('/thread')->to('bbs#thread');
+
 
 }
 
