@@ -1,6 +1,7 @@
 #!/usr/bin/env perl
 use Mojolicious::Lite;
 
+
 my $mount_path = '/secure';
 
 helper is_login => sub {
@@ -66,7 +67,9 @@ my $app_route = plugin Mount => { $mount_path, => app->home->rel_dir('sample.pl'
 # それを認証ブリッジの子として追加する
 $auth_bridge->add_child($app_route);
 
+
 app->start;
+
 __DATA__
 
 @@ login.html.ep

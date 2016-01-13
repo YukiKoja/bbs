@@ -91,6 +91,107 @@ text-decoration:none;/*リンクの下線を無くす*/
 }
 
 div#main {
-width:390px; margin-right:5px; padding-top:10px;
+width:470px; margin-right:5px; padding-top:10px;
 float:left;
+position: relative;
+  height: auto !important;  /* IE6対策：この2行で */
+  height: 100%;             /* IE6対策：擬似的にmin-heightと同じことをさせてる */
+  
+  min-height: 100%;
+}
+
+.clear {
+    clear:both;
+}
+
+#footer {
+background: url(footer_back.gif) repeat-x;
+  bottom: 0;                /* フッターが下に来るようにする */
+  #  position: absolute;
+  width: 100%;
+}
+
+#footer input[type='submit'] {
+  color: transparent;
+  
+  width: 50;
+  height: 30;
+  border: 0;
+  background: url(submit.gif);
+  background-size: cover;
+}
+
+#footer #value_form {
+  margin: 0 6px;
+  padding: 0 12px;
+
+  border: 0;
+  vertical-align: middle;
+  background: url(value.gif) top;
+  background-size: cover;
+
+}
+
+#contents {
+
+  height:60%; overflow:auto; overflow-x: hidden; 
+  background: #fff url(contents_back.jpg);
+  background-repeat: no-repeat;            /* 背景を繰り返さない */
+  background-position: 50% 50%;            /* 背景画像の位置は画面中央 */
+  
+  font-size:80%; color:#000000;
+}
+
+#title{
+  z-index: 5;
+  height: 60px;
+  background: url(header_back.gif) repeat-x;
+  text-align: center;
+  font-size: 30;
+  color: white;
+
+}
+
+.name {
+  padding-left: 16px;
+  font-size: 18px;
+  line-height: 18px;
+  color: #fff;
+}
+
+.time {
+
+  bottom: 20px;
+  left: 520px;
+  font-size: 18px;
+  color: #fff;
+}
+
+.fukidashi {
+
+}
+
+.fukidashi .fukidashi_top {
+  height: 37px;
+  background: url(fukidashi_top.png);
+    background-repeat-x: no-repeat;
+}
+
+.fukidashi .fukidashi_bottom {
+  height: 36px;
+  background: url(fukidashi_bottom.png);
+    background-repeat-x: no-repeat;
+}
+
+.fukidashi .value {
+  font-size: 30px;
+  word-break: break-all;
+  padding: 0 30px 0 40px;
+  background: url(fukidashi_middle.png) repeat-y;
+}
+
+.icon {
+  position: absolute;
+  top: 0;
+  left: 0;
 }

@@ -4,6 +4,8 @@
 
     <title>掲示板</title>
     %= stylesheet '/css/common.css';
+
+
   </head>
 
 
@@ -20,30 +22,32 @@
 [<a href="">リンク</a>]
 [<a href="">リンク</a>]
 <hr width="90%">
+
 </header>
 
 
 
 <div id="submenu">
-
     <div id="submenu_header">スレッド</div>
     <ul id="submenu_body">
     <% for my $thread_info (@$thread_infos) { %>
     <li><a href="?thread_id=<%= $thread_info->{thread_id} %>"><%= $thread_info->{name} %></a></li>
     <% } %>
     </ul>
+
+ <%= session 'user' %>.<br>
+%= link_to Logout => 'logout'
+
 </div>
 
 
 
-<div id ="back">
+
 
 
 
 
 <div id ="main">
-
-<div id ="bbs">
     <form method="post" action="<%= url_for('thread') %>">
       <div>
         新規
@@ -51,60 +55,76 @@
         <input type="submit" value="作成">
       </div>
     </form>
-
-
     <hr>
+<div id="title">
     <h2><%= $current_thread_name %></h2>
-    <form method="post" action="<%= url_for('create') %>">
-    <input type="hidden" name="thread_id" value="<%= $current_thread_id %>">
-      <div>
-        Name
-        <input type="text" name="name">
-      </div>
-      <div>Message</div>
-      <div>
-        <textarea name="message" cols="50" rows="10" ></textarea>
-      </div>
-      <div>
-        youtube
-        <input type="text" name="youtube" size="40" placeholder="http://www.youtube.com/watch?v=8Q2uzIv4nhg" >
-      </div>
-
-      <div>
-        <input type="submit" value="Post">
-      </div>
-    </form>
 </div>
 
+<div id="contents">
+<div style="margin:1em 10px;">
 
-   <div id="form">
 
      <% for my $entry_info (@$entry_infos) { %>
 
      <div>
-     <div style="background-color:#016BFF;">Name: <%= $entry_info->{name} %>
-     (<%= $entry_info->{datetime} %>)</div>
-     <div style="background-color:#a4a4a4;">Message</div>
-     <div style="background-color:#a4a4a4;"><%= $entry_info->{message} %></div>
 
+     <div class="name"><img src="http://www.logosforwebsites.com/wp-content/uploads/2009/07/favicon.ico">Name: <%= $entry_info->{name} %></div>
+     
+
+     <div class="fukidashi">
+           <div class="fukidashi_top"></div>
+           <div class="value"><%= $entry_info->{message} %></div>
+           <div class="fukidashi_bottom"></div>
+     </div>
      <div>
 <%== $entry_info->{tag} || '' %>
 <%= $entry_info->{youtube} || '' %>
 <%== $entry_info->{tag2} || '' %>
      </div>
-
+     <div class="time">(<%= $entry_info->{datetime} %>)</div>
      <hr>
      </div>
 
     <% } %>
 
    </div>
-
-
-
    </div>
+
+
+
+  <div id="footer">
+    <form method="post" action="<%= url_for('create') %>">
+    <input type="hidden" name="thread_id" value="<%= $current_thread_id %>">
+      <div>
+        Name
+        <input type="text" name="name" id="value_form" style="
+    height: 16px;
+    width: 135px;">
+      </div>
+
+      <div>
+        Message
+        <textarea name="message" cols="30" rows="2" id="value_form" style="width: 246px;
+    height: 28px;"></textarea>
+        <input type="submit" value="Post">
+
+      </div>
+      <div>
+        youtube
+        <input type="text" name="youtube" size="40" placeholder="http://www.youtube.com/watch?v=8Q2uzIv4nhg" id="value_form" >
+      </div>
+
+    </form>
+
+
   </div>
- </div>
+
+
+</div>
+
+<div class="clear"></div>
+
+</div>
 
 
 </body>

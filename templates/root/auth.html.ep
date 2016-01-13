@@ -1,0 +1,26 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+
+<title></title>
+    %= stylesheet '/css/login.css';
+</head>
+  <body>
+
+<div id="form">
+% if ($auth_failed) {
+   <b> wrong!</b><br>
+% } 
+    <p class="form-title">Login</p>
+<form action="/" method="post">
+<p>User</p>
+  <p class="user"><input type="text" name="user" /></p>
+<p>Password</p>
+  <p class="password"><input type="text" name="pass" /></p>
+<p class="submit"><input type="submit" value="Login" /></p>
+
+</form>
+</div>
+</body>
+</html>

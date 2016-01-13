@@ -140,17 +140,21 @@ my $DB_PASSWD = "yuki";
 
 my $dbh = DBI->connect("dbi:Pg:dbname=$DB_NAME;host=$DB_HOST", $DB_USER, $DB_PASSWD)
     or die "$!\n Error: failed to connect to DB.\n";
-my $sth = $dbh->prepare("select * from $a");
-$sth->execute();
+    my $sth = $dbh->prepare("SELECT
+    relname AS table_name
+FROM
+    pg_stat_user_tables ");
+    $sth->execute();
 
     my $entry_infos = [];
 
-while (my $href = $sth->fetchrow_hashref) {
+    while (my $href = $sth->fetchrow_hashref) {
 
-    print $href->{name},"\n";
+	print $href->{table_name},"\n";
 
         my $entry_info = {};
-        $entry_info->{name}    = $href->{name};
+
+        $entry_info->{table_name}    = $href->{table_name};
 
         push @$entry_infos, $entry_info;
 
@@ -350,7 +354,7 @@ float:left;
      <% for my $entry_info (@$entry_infos) { %>
 
      <div>
-     <div style="background-color:#016BFF;">Name: <%= $entry_info->{name} %>
+     <div style="background-color:#016BFF;">Name: <%= $entry_info->{table_name} %>
      (<%= $entry_info->{datetime} %>)</div>
      <div style="background-color:#a4a4a4;">Message</div>
      <div style="background-color:#a4a4a4;"><%= $entry_info->{message} %></div>
