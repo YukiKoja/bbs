@@ -13,12 +13,13 @@ sub startup {
     my $r = $self->routes;
 
   # ブリッジでどこにアクセスするにも認証チェック
-    $r = $r->under->to('root#login');
-
+      $r = $r->under->to('root#login');
+    
   # '/'は'index'に飛ぶようにする
     $r->any('/')->to('bbs#index')->name('index');
 
   # ログアウトはまぁそのまま
+    
     $r->get('/logout')->to('root#logout');
 
     #$r->get('/')->to('bbs#index');

@@ -195,3 +195,183 @@ background: url(footer_back.gif) repeat-x;
   top: 0;
   left: 0;
 }
+
+
+
+
+/* ------------------------------------------------ drawer menu */
+.drawer-menu {
+    box-sizing: border-box;
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 300px;
+    height: 100%;
+    padding: 120px 0;
+    background: #222;
+
+    transition-property: all;
+
+    transition-duration: .5s;
+
+    transition-delay: 0s;
+
+
+    transform-origin: right center;
+
+    transform: perspective(500px) rotateY(-90deg);
+    opacity: 0;
+}
+
+.drawer-menu li {
+    text-align: center;
+}
+
+.drawer-menu li a {
+    display: block;
+    height: 50px;
+    line-height: 50px;
+    font-size: 14px;
+    color: #fff;
+
+    transition: all .8s;
+}
+
+.drawer-menu li a:hover {
+    color: #1a1e24;
+    background: #fff;
+}
+
+/* ------------------------------------------------ checkbox */
+.check {
+    display: none;
+}
+
+/* ------------------------------------------------ menu button */
+.menu-btn {
+    position: fixed;
+    display: block;
+    top: 40px;
+    right: 40px;
+    display: block;
+    width: 40px;
+    height: 40px;
+    font-size: 10px;
+    text-align: center;
+    cursor: pointer;
+    z-index: 3;
+}
+
+.bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: block;
+    width: 40px;
+    height: 1px;
+    background: #fff;
+
+    transition: all .5s;
+
+    transform-origin: left top;
+}
+
+.bar.middle {
+    top: 15px;
+    opacity: 1;
+}
+
+.bar.bottom {
+    top: 30px;
+
+    transform-origin: left bottom;
+}
+
+.menu-btn__text {
+    position: absolute;
+    bottom: -15px;
+    left: 0;
+    right: 0;
+    margin: auto;
+    color: #fff;
+
+    transition: all .5s;
+    display: block;
+    visibility: visible;
+    opacity: 1;
+}
+
+.menu-btn:hover .bar {
+    background: #999;
+}
+
+.menu-btn:hover .menu-btn__text {
+    color: #999;
+}
+
+.close-menu {
+    position: fixed;
+    top: 0;
+    right: 300px;
+    width: 100%;
+    height: 100vh;
+    background: rgba(0,0,0,0);
+    cursor: url(../images/cross.svg),auto;
+
+    transition-property: all;
+
+    transition-duration: .3s;
+
+    transition-delay: 0s;
+    visibility: hidden;
+    opacity: 0;
+}
+
+/* ------------------------------------------------ checked */
+.check:checked ~ .drawer-menu {
+
+    transition-delay: .3s;
+
+    transform: none;
+    opacity: 1;
+    z-index: 2;
+}
+
+.check:checked ~ .contents {
+
+    transition-delay: 0s;
+
+    transform: translateX(-300px);
+}
+
+.check:checked ~ .menu-btn .menu-btn__text {
+    visibility: hidden;
+    opacity: 0;
+}
+
+.check:checked ~ .menu-btn .bar.top {
+    width: 56px;
+
+    transform: rotate(45deg);
+}
+
+.check:checked ~ .menu-btn .bar.middle {
+    opacity: 0;
+}
+
+.check:checked ~ .menu-btn .bar.bottom {
+    width: 56px;
+    top: 40px;
+
+    transform: rotate(-45deg);
+}
+
+.check:checked ~ .close-menu {
+    transition-duration: 1s;
+
+    transition-delay: .3s;
+    background: rgba(0,0,0,.5);
+    visibility: visible;
+    opacity: 1;
+    z-index: 3;
+}

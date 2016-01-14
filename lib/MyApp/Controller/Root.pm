@@ -1,15 +1,41 @@
 package MyApp::Controller::Root;
 use Mojo::Base 'Mojolicious::Controller';
-
-sub index {
-    my $self = shift;
-    $self->render(template => 'root/index');
-}
+use strict;
+use warnings;
+use DBI;
 
 sub login {
     my $self = shift;
     my $user = $self->param('user') || '';
     my $pass = $self->param('pass') || '';
+    my $DB_NAME = "hoge";
+    my $DB_HOST = "127.0.0.1";
+    my $DB_USER = "koja";
+    my $DB_PASSWD = "yuki";
+
+
+    my $dbh = DBI->connect("dbi:Pg:dbname=$DB_NAME;host=$DB_HOST", $DB_USER, $DB_PASSWD)
+        or die "$!\n Error: failed to connect to DB.\n";
+    my $sth = $dbh->prepare("
+    SELECT name, password from db_user
+   ");
+    $sth->execute;
+
+    my $user_name = '';
+    my $user_password = '';
+
+    while (my $href = $sth->fetchrow_hashref) {
+
+	if($user =~ /$href->{name}/ && $pass =~ /$href->{password}/){
+	    $user_name = $href->{name};
+	    $user_password = $href->{password};
+    }
+
+
+
+ }
+$dbh->disconnect;
+
 
     $self->app->log->info("login check");
 
@@ -18,13 +44,16 @@ sub login {
 	return 1;
     }
 
+
     # パスワードチェック（適当）
     $self->stash->{auth_failed} = 0;
     if ($user || $pass) {
 	$self->app->log->info("pass check");
-	if ($user eq "test" && $pass eq "test") {
+	if ($user eq $user_name && $pass eq $user_password) {
 	    $self->session(user => $user);
-	    return 1;
+
+    return 1;
+	    
 	}
 	$self->stash->{auth_failed} = 1;
     }
@@ -32,14 +61,25 @@ sub login {
     # 認証画面を描画
     $self->render( template => 'root/auth');
     return undef;
+    
 }
+
 
 sub logout {
     my $self = shift;
     # セッション削除
     $self->session(expires => 1);
+    #$self->render(template => 'root/auth');
     $self->redirect_to('index');
+
+
+
+
 }
+
+
+
+
 
 1;
 

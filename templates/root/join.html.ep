@@ -1,0 +1,29 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+
+<title>新規登録</title>
+    %= stylesheet '/css/login.css';
+</head>
+  <body>
+
+<div id="form">
+
+<p class="form-title">登録</p>
+<p>必要事項をご記入ください</p>
+
+<form action="" method="post">
+
+<p>User</p><font color="red">必須</font>
+  <p class="user"><input type="text" name="user" /></p>
+<p>Password</p><font color="red">必須</font>
+  <p class="password"><input type="text" name="pass" /></p>
+
+<p class="submit"><input type="submit" value="確認" /></p>
+
+</form>
+
+</div>
+</body>
+</html>
