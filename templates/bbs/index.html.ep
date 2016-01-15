@@ -4,12 +4,12 @@
 
     <title>掲示板</title>
     %= stylesheet '/css/common.css';
-
-
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
   </head>
 
 
 <body>
+
   <input type="checkbox" class="check" id="checked">
   <label class="menu-btn" for="checked">
     <span class="bar top"></span>
@@ -18,15 +18,15 @@
     <span class="menu-btn__text">MENU</span>
     </label>
   <label class="close-menu" for="checked"></label>
+
   <nav class="drawer-menu">
     <ul>
-      <li><a href="#">Side Menu Name</a></li>
-      <li><a href="#">Side Menu Name</a></li>
-      <li><a href="#">Side Menu Name</a></li>
-      <li><a href="#">Side Menu Name</a></li>
-      <li><a href="#">Side Menu Name</a></li>
-      </ul>
+    <% for my $thread_info (@$thread_infos) { %>
+    <li><a href="?thread_id=<%= $thread_info->{thread_id} %>"><%= $thread_info->{name} %></a></li>
+    <% } %>
+    </ul>
     </nav>
+
 <div id ="pagebody">
 
 <header>
@@ -51,7 +51,7 @@
     <% } %>
     </ul>
 
- <%= session 'user' %>.<br>
+<%= session 'user' %>.<br>
 %= link_to Logout => 'logout'
 
 </div>
@@ -97,6 +97,10 @@
 <%= $entry_info->{youtube} || '' %>
 <%== $entry_info->{tag2} || '' %>
      </div>
+              <div>
+                <img src="">
+              </div>
+
      <div class="time">(<%= $entry_info->{datetime} %>)</div>
      <hr>
      </div>
@@ -105,6 +109,9 @@
 
    </div>
    </div>
+<script>
+
+$("#contents").delay(100).animate({scrollTop: $("#contents")[0].scrollHeight},1500);</script>
 
 
 
@@ -129,7 +136,9 @@
         youtube
         <input type="text" name="youtube" size="40" placeholder="http://www.youtube.com/watch?v=8Q2uzIv4nhg" id="value_form" >
       </div>
-
+      <div>
+        File name
+        <input type="file" name="image" >
     </form>
 
 

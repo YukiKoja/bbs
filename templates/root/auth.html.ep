@@ -19,10 +19,10 @@
 <p>Password</p>
   <p class="password"><input type="text" name="pass" /></p>
 <p class="submit"><input type="submit" value="Login" /></p>
-
-
-
-<p class="submit"><input type="submit" value="新規"/></p>
+</form>
+<br>
+<form action="/join">
+<p class="submit"><input type="submit" value="新 規"/></p>
 </form>
 </div>
 </body>

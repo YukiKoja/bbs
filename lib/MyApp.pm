@@ -13,6 +13,8 @@ sub startup {
     my $r = $self->routes;
 
   # ブリッジでどこにアクセスするにも認証チェック
+      $r->get('/join')->to('root#join');
+      $r->post('/newjoin')->to('root#newjoin');
       $r = $r->under->to('root#login');
     
   # '/'は'index'に飛ぶようにする
